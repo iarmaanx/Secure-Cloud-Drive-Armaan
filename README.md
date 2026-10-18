@@ -134,10 +134,4 @@ You must add your AWS Credentials + Cognito details in:
 Support by ⭐ starring the repo!
 
 ```
-⭐ → Motivation ++
-```
-## 👥 Contributors
-| Contributor                               | Responsibilities                                                                                                                 |
-| ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| **🔐 Jashan** *(Cybersecurity & Encryption)* | Zero-knowledge design • Client-side AES-GCM crypto • Vault lock system • Security architecture • Authentication hardening        |
-| **☁ Armaan** *(Cloud & Deployment)*          | AWS S3 storage integration • IAM permission setup • Cognito configuration • Backend connectivity • Cloud workflow implementation |
+
