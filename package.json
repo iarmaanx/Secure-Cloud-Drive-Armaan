@@ -4,6 +4,7 @@
   "description": "Encryptes the file before uploading to cloud",
   "main": "index.js",
   "scripts": {
+    "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -19,11 +20,11 @@
   },
   "homepage": "https://github.com/Jashan507/Secure-Cloud-Storage#readme",
   "dependencies": {
-    "aws-sdk": "^2.1693.0",
     "body-parser": "^2.3.0",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "google-auth-library": "^11.3.1",
     "jsonwebtoken": "^9.0.3"
   }
 }

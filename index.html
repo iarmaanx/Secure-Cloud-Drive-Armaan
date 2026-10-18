@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
   <title>Secure Cloud Drive — Encrypted Storage</title>
 
   <!-- Tailwind CDN -->
@@ -677,6 +678,12 @@
       position: relative;
     }
 
+    .google-sign-in-button {
+      display: flex;
+      justify-content: center;
+      min-height: 44px;
+    }
+
     .password-toggle-btn {
       position: absolute;
       right: 14px;
@@ -835,7 +842,7 @@
       <div>
         <div style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;">
           <span class="hero-badge">⭐ #1 Encrypted Storage</span>
-          <span class="hero-badge">🔒 Zero-Knowledge</span>
+          <span class="hero-badge">🔒 Google-Verified Sign-In</span>
           <span class="hero-badge">🚀 2026 Edition</span>
         </div>
         
@@ -845,8 +852,7 @@
         </h1>
         
         <p class="hero-sub">
-          Store files with military-grade AES-256-GCM encryption. 
-          Encrypted in your browser before upload — <strong style="color: #f1f5f9;">only you</strong> hold the keys.
+          Explore browser-side AES-GCM encryption with Google-verified accounts. This prototype's encryption key is not secret, so don't store sensitive files.
         </p>
 
         <div class="hero-cta">
@@ -865,7 +871,7 @@
           </div>
           <div class="hero-stat">
             <div class="hero-stat-number">0</div>
-            <div class="hero-stat-label">Passwords Required</div>
+            <div class="hero-stat-label">Local File Storage</div>
           </div>
           <div class="hero-stat">
             <div class="hero-stat-number">∞</div>
@@ -881,7 +887,7 @@
           <div class="hero-card-title">Secure Vault</div>
           <ul class="hero-card-features">
             <li>✅ AES-256-GCM Encryption</li>
-            <li>✅ Zero-Knowledge Architecture</li>
+            <li>✅ Google-Verified Sign-In</li>
             <li>✅ Client-Side Processing</li>
             <li>✅ Drag & Drop Upload</li>
             <li>✅ File Preview & Download</li>
@@ -902,13 +908,13 @@
       <div class="feature-card reveal">
         <div class="feature-card-icon">🔐</div>
         <h3>End-to-End Encryption</h3>
-        <p>Files are encrypted with AES-256-GCM in your browser using the Web Crypto API. Your encryption key is derived from your username — never sent to the server.</p>
+        <p>Files are encrypted in your browser with AES-GCM. This prototype derives its key from your account ID, so it is not suitable for protecting sensitive files.</p>
       </div>
 
       <div class="feature-card reveal">
         <div class="feature-card-icon">👤</div>
-        <h3>Zero-Knowledge</h3>
-        <p>We have zero access to your files. The server only stores encrypted data. Without your key, your files are unreadable — even by us.</p>
+        <h3>Encryption Prototype</h3>
+        <p>Files are encrypted in your browser before upload. This prototype's account-ID-based key is not secret, so the current encryption is not zero-knowledge.</p>
       </div>
 
       <div class="feature-card reveal">
@@ -941,14 +947,14 @@
   <section id="how-it-works">
     <h2 class="section-title">How It Works</h2>
     <p class="section-subtitle">
-      Three simple steps to secure file storage. No accounts, no passwords, no compromise.
+      Sign in with Google, then encrypt and manage files in your browser.
     </p>
 
     <div class="steps-grid">
       <div class="step-card reveal">
         <div class="step-number">1</div>
-        <h3>Pick a Username</h3>
-        <p>Enter any username — your encryption key is derived from it. No sign-up, no password, no personal data collected.</p>
+        <h3>Sign In with Google</h3>
+        <p>Your first Google sign-in creates your account. Later sign-ins return you to the same account.</p>
       </div>
 
       <div class="step-card reveal">
@@ -960,7 +966,7 @@
       <div class="step-card reveal">
         <div class="step-number">3</div>
         <h3>Access Anywhere</h3>
-        <p>Log in with the same username to decrypt and access your files. Only you can read your data — always.</p>
+        <p>Sign in with the same Google account to access files in your account.</p>
       </div>
     </div>
   </section>
@@ -975,17 +981,17 @@
     <div class="faq-grid">
       <div class="faq-item reveal">
         <h4>🔐 How is my data encrypted?</h4>
-        <p>We use AES-256-GCM encryption with the Web Crypto API. Your encryption key is derived from your username using SHA-256, ensuring only you can decrypt your files.</p>
+        <p>Files use browser-side AES-GCM encryption, but this prototype derives the key from a stable account ID. That ID is not secret, so do not use this version to protect sensitive files.</p>
       </div>
 
       <div class="faq-item reveal">
-        <h4>👤 Do I need to create an account?</h4>
-        <p>No! Just pick a username and a password. No email, no personal information required.</p>
+        <h4>👤 How do I create an account?</h4>
+        <p>Choose Continue with Google. Your first successful sign-in creates an account using your verified Google identity.</p>
       </div>
 
       <div class="faq-item reveal">
-        <h4>🔑 What if I forget my password?</h4>
-        <p>Since we don't store your password, we can't reset it. Please save your credentials securely. This is by design for zero-knowledge security.</p>
+        <h4>🔑 How do I recover account access?</h4>
+        <p>Use Google's account recovery process for the Google account you signed in with.</p>
       </div>
 
       <div class="faq-item reveal">
@@ -1000,7 +1006,7 @@
 
       <div class="faq-item reveal">
         <h4>🔒 Is this really zero-knowledge?</h4>
-        <p>Yes! Files are encrypted on your device before they reach our servers. We only store encrypted data and have no way to read your files.</p>
+        <p>No. The prototype derives its encryption key from your account ID, which is not secret. Do not use it to protect sensitive files.</p>
       </div>
     </div>
   </section>
@@ -1009,7 +1015,7 @@
   <section class="cta-section">
     <div class="cta-box reveal">
       <h2>Ready to Secure Your Files?</h2>
-      <p>Join thousands of users who trust Secure Cloud Drive for encrypted storage.</p>
+      <p>Sign in with Google to explore the local storage prototype.</p>
       <button class="btn-primary" onclick="openModal()" style="font-size: 1.1rem; padding: 18px 48px;">
         🚀 Get Started Now — It's Free
       </button>
@@ -1037,137 +1043,102 @@
       
       <div class="modal-icon">🔐</div>
       <h2 class="modal-title">Welcome to Secure Cloud Drive</h2>
-      <p class="modal-sub">Enter your credentials to access your encrypted vault</p>
-      
-      <!-- <div class="modal-demo-hint">
-        💡 Demo: Use <strong>any username</strong> & <strong>password</strong> (min 4 chars)
-      </div> -->
+      <p class="modal-sub">Continue with Google to create an account or access your vault</p>
       
       <div id="modalError" class="modal-error">
         ⚠️ <span id="errorMessage">Invalid credentials</span>
       </div>
       
-      <form id="loginForm" onsubmit="handleLogin(event)">
-        <input 
-          type="text" 
-          id="usernameInput" 
-          class="modal-input" 
-          placeholder="👤 Username" 
-          required
-          autofocus
-        />
-        
-        <div class="modal-password-toggle">
-          <input 
-            type="password" 
-            id="passwordInput" 
-            class="modal-input" 
-            placeholder="🔑 Password (min 4 characters)" 
-            required
-            minlength="4"
-          />
-          <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility()">
-            👁️
-          </button>
-        </div>
-        
-        <button type="submit" class="modal-btn" id="loginBtn">
-          🚀 Continue to Dashboard
-        </button>
-      </form>
-      
-      <div class="modal-divider">or</div>
-      
-      <button class="modal-btn" onclick="quickLogin()" style="background: rgba(255,255,255,0.06); color: #cbd5e1; box-shadow: none;">
-        ⚡ Quick Demo Login
-      </button>
-      
-      <p class="modal-footer-text">
-        🔒 Your password is never stored • Used only for authentication
-      </p>
+      <div id="googleSignInButton" class="google-sign-in-button"></div>
+      <p class="modal-footer-text">Google verifies your sign-in. Vault encryption needs a separate secret key before this app is suitable for sensitive files.</p>
     </div>
   </div>
 
   <script>
-    // ============================================
-    // TOGGLE PASSWORD VISIBILITY
-    // ============================================
-    
-    let passwordVisible = false;
-    
-    function togglePasswordVisibility() {
-      const input = document.getElementById('passwordInput');
-      const btn = document.querySelector('.password-toggle-btn');
-      passwordVisible = !passwordVisible;
-      input.type = passwordVisible ? 'text' : 'password';
-      btn.textContent = passwordVisible ? '🙈' : '👁️';
+    let googleScriptPromise;
+
+    function loadGoogleIdentityServices() {
+      if (window.google?.accounts?.id) return Promise.resolve();
+      if (!googleScriptPromise) {
+        googleScriptPromise = new Promise((resolve, reject) => {
+          const script = document.createElement('script');
+          script.src = 'https://accounts.google.com/gsi/client';
+          script.async = true;
+          script.defer = true;
+          script.onload = resolve;
+          script.onerror = () => {
+            googleScriptPromise = null;
+            reject(new Error('Could not load Google sign-in. Check your connection and try again.'));
+          };
+          document.head.appendChild(script);
+        });
+      }
+      return googleScriptPromise;
     }
 
-    // ============================================
-    // HANDLE LOGIN
-    // ============================================
-    
-    async function handleLogin(event) {
-      event.preventDefault();
-      
-      const username = document.getElementById('usernameInput').value.trim();
-      const password = document.getElementById('passwordInput').value.trim();
-      const errorEl = document.getElementById('modalError');
-      const errorMsg = document.getElementById('errorMessage');
-      const loginBtn = document.getElementById('loginBtn');
-      
-      // Reset error
-      errorEl.classList.remove('show');
-      document.getElementById('usernameInput').classList.remove('error');
-      document.getElementById('passwordInput').classList.remove('error');
-      
-      if (!username) {
-        showError('Please enter a username');
-        document.getElementById('usernameInput').classList.add('error');
-        return;
-      }
-      
-      if (!password || password.length < 4) {
-        showError('Password must be at least 4 characters');
-        document.getElementById('passwordInput').classList.add('error');
-        return;
+    async function parseAuthResponse(response) {
+      let data;
+      try {
+        data = await response.json();
+      } catch {
+        if (!response.ok) {
+          throw new Error(`Sign-in service returned HTTP ${response.status}. Restart the server and try again.`);
+        }
+        throw new Error('Sign-in service returned an invalid response. Restart the server and try again.');
       }
 
-      // Disable button during login
-      loginBtn.disabled = true;
-      loginBtn.textContent = '⏳ Logging in...';
+      if (!response.ok) {
+        throw new Error(data.message || `Sign-in failed with HTTP ${response.status}.`);
+      }
+      return data;
+    }
+
+    async function initializeGoogleSignIn() {
+      const button = document.getElementById('googleSignInButton');
+      button.replaceChildren();
 
       try {
-        const response = await fetch('/api/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password })
-        });
-
-        if (!response.ok) {
-          const error = await response.json();
-          throw new Error(error.message || 'Login failed');
+        const configResponse = await fetch('/api/auth/config');
+        const config = await parseAuthResponse(configResponse);
+        if (!config.googleClientId) {
+          throw new Error('Google sign-in is not configured. Set GOOGLE_CLIENT_ID in the server .env file.');
         }
 
-        const data = await response.json();
-        
+        await loadGoogleIdentityServices();
+        window.google.accounts.id.initialize({
+          client_id: config.googleClientId,
+          callback: handleGoogleCredential
+        });
+        window.google.accounts.id.renderButton(button, {
+          theme: 'outline',
+          size: 'large',
+          text: 'continue_with',
+          shape: 'rectangular',
+          width: 280
+        });
+      } catch (error) {
+        showError(error.message || 'Could not initialize Google sign-in.');
+      }
+    }
+
+    async function handleGoogleCredential(googleResponse) {
+      try {
+        const response = await fetch('/api/auth/google', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ credential: googleResponse.credential })
+        });
+        const data = await parseAuthResponse(response);
+
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
-        
         closeModal();
-        
-        showToast(`👋 Welcome ${username}! Redirecting...`, 'success');
+        showToast(`Welcome ${data.user.name}! Redirecting...`, 'success');
         setTimeout(() => {
           window.location.href = '/dashboard.html';
         }, 600);
-        
-      } catch (err) {
-        showError(err.message || 'Invalid username or password');
-        document.getElementById('passwordInput').classList.add('error');
-        document.getElementById('passwordInput').value = '';
-        document.getElementById('passwordInput').focus();
-        loginBtn.disabled = false;
-        loginBtn.textContent = '🚀 Continue to Dashboard';
+      } catch (error) {
+        showError(error.message || 'Google sign-in failed. Please try again.');
       }
     }
 
@@ -1179,32 +1150,14 @@
     }
 
     // ============================================
-    // QUICK DEMO LOGIN
-    // ============================================
-    
-    async function quickLogin() {
-      const username = 'demo_' + Math.random().toString(36).substring(2, 8);
-      const password = 'demo123';
-      
-      document.getElementById('usernameInput').value = username;
-      document.getElementById('passwordInput').value = password;
-      
-      // Auto submit
-      await handleLogin(new Event('submit'));
-    }
-
-    // ============================================
     // MODAL CONTROLS
     // ============================================
     
     function openModal() {
       const modal = document.getElementById('loginModal');
       modal.classList.add('active');
-      document.getElementById('usernameInput').focus();
-      // Reset error state
       document.getElementById('modalError').classList.remove('show');
-      document.getElementById('usernameInput').classList.remove('error');
-      document.getElementById('passwordInput').classList.remove('error');
+      initializeGoogleSignIn();
     }
 
     function closeModal() {
@@ -1222,16 +1175,16 @@
         '📌 Version 2.0 — Enhanced Edition\n\n' +
         '✨ Features:\n' +
         '• AES-256-GCM client-side encryption\n' +
-        '• Zero-knowledge architecture\n' +
+        '• Browser-side encryption prototype\n' +
         '• Drag & drop file upload\n' +
         '• File preview & download\n' +
         '• Activity logging\n' +
-        '• Username + Password authentication\n\n' +
+        '• Google account authentication\n\n' +
         '🔐 Security:\n' +
         '• Encrypted in your browser\n' +
-        '• Decryption key derived from username\n' +
-        '• Files stored encrypted at rest\n' +
-        '• Passwords never stored\n\n' +
+        '• Prototype encryption key derived from account ID\n' +
+        '• Encryption key derived from a non-secret account ID\n' +
+        '• Not suitable for sensitive files\n\n' +
         '💡 Built with:\n' +
         '• Node.js + Express\n' +
         '• Web Crypto API\n' +
@@ -1303,7 +1256,7 @@
     console.log('%c🔒 Secure Cloud Drive v2.0', 'font-size: 24px; font-weight: bold; color: #818cf8;');
     console.log('%c⚡ Built by Armaan', 'font-size: 14px; color: #94a3b8;');
     console.log('%c📁 Click "Get Started" to login!', 'font-size: 14px; color: #34d399;');
-    console.log('%c🔑 Any username + password (min 4 chars) works for demo', 'font-size: 12px; color: #fbbf24;');
+    console.log('%c🔑 Google sign-in must be configured with GOOGLE_CLIENT_ID', 'font-size: 12px; color: #fbbf24;');
   </script>
 </body>
 </html>

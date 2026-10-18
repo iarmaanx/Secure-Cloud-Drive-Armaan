@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <title>My Secure Drive</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
@@ -1027,9 +1028,9 @@
     // REAL AES-GCM ENCRYPTION (Web Crypto API)
     // ============================================
     
-    async function getEncryptionKey(username) {
+    async function getEncryptionKey(userId) {
       const encoder = new TextEncoder();
-      const data = encoder.encode(username + 'secure-cloud-drive-salt');
+      const data = encoder.encode(userId + 'secure-cloud-drive-salt');
       const hash = await crypto.subtle.digest('SHA-256', data);
       return await crypto.subtle.importKey(
         'raw',
@@ -1040,8 +1041,8 @@
       );
     }
     
-    async function encryptFile(arrayBuffer, username) {
-      const key = await getEncryptionKey(username);
+    async function encryptFile(arrayBuffer, userId) {
+      const key = await getEncryptionKey(userId);
       const iv = crypto.getRandomValues(new Uint8Array(12));
       
       const encrypted = await crypto.subtle.encrypt(
@@ -1057,8 +1058,8 @@
       return result;
     }
     
-    async function decryptFile(encryptedData, username) {
-      const key = await getEncryptionKey(username);
+    async function decryptFile(encryptedData, userId) {
+      const key = await getEncryptionKey(userId);
       const iv = encryptedData.slice(0, 12);
       const data = encryptedData.slice(12);
       
@@ -1231,7 +1232,7 @@
         // Show encryption animation
         showEncryptionAnimation(file.name);
         
-        const encrypted = await encryptFile(arrayBuffer, currentUser.name || currentUser.id);
+        const encrypted = await encryptFile(arrayBuffer, currentUser.id);
         
         const uint8Array = new Uint8Array(encrypted);
         let binary = '';
@@ -1461,7 +1462,7 @@
         
         showToast(`🔐 Decrypting ${fileId}...`, 'info');
         
-        const decrypted = await decryptFile(bytes, currentUser.name || currentUser.id);
+        const decrypted = await decryptFile(bytes, currentUser.id);
         
         const blob = new Blob([decrypted]);
         const url = URL.createObjectURL(blob);
@@ -1495,7 +1496,7 @@
           bytes[i] = binary.charCodeAt(i);
         }
         
-        const decrypted = await decryptFile(bytes, currentUser.name || currentUser.id);
+        const decrypted = await decryptFile(bytes, currentUser.id);
         const blob = new Blob([decrypted]);
         const url = URL.createObjectURL(blob);
         

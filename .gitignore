@@ -1,3 +1,5 @@
 node_modules
 .env
 app-config.local.js
+users.json
+storage/
