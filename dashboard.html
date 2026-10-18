@@ -1,0 +1,1779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Secure Drive</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* ===== ANIMATIONS ===== */
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+    
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    
+    @keyframes gradient-shift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* ===== ENCRYPTION ANIMATION ===== */
+    @keyframes encryptPulse {
+      0% { transform: scale(1); opacity: 0.6; }
+      50% { transform: scale(1.1); opacity: 1; }
+      100% { transform: scale(1); opacity: 0.6; }
+    }
+
+    @keyframes encryptSpin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes encryptShimmer {
+      0% { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
+
+    @keyframes encryptSuccess {
+      0% { transform: scale(0.5); opacity: 0; }
+      50% { transform: scale(1.3); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes encryptParticles {
+      0% { transform: translate(0, 0) scale(1); opacity: 1; }
+      100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+    }
+
+    /* Encryption Overlay */
+    .encryption-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 36, 0.85);
+      backdrop-filter: blur(10px);
+      z-index: 9999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+
+    .encryption-overlay.active {
+      display: flex;
+    }
+
+    .encryption-box {
+      text-align: center;
+      padding: 40px;
+      max-width: 400px;
+      width: 90%;
+    }
+
+    .encryption-lock {
+      font-size: 4rem;
+      animation: encryptPulse 1.2s ease-in-out infinite;
+      display: block;
+      margin-bottom: 20px;
+    }
+
+    .encryption-spinner {
+      width: 60px;
+      height: 60px;
+      border: 3px solid rgba(79, 70, 229, 0.1);
+      border-top-color: #4f46e5;
+      border-radius: 50%;
+      animation: encryptSpin 0.8s linear infinite;
+      margin: 0 auto 20px auto;
+    }
+
+    .encryption-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #f1f5f9;
+      margin-bottom: 8px;
+    }
+
+    .encryption-subtitle {
+      color: #94a3b8;
+      font-size: 0.9rem;
+      margin-bottom: 20px;
+    }
+
+    .encryption-progress-bar {
+      width: 100%;
+      height: 4px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+
+    .encryption-progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #4f46e5, #06b6d4, #4f46e5);
+      background-size: 200% auto;
+      animation: encryptShimmer 2s linear infinite;
+      border-radius: 2px;
+      transition: width 0.3s ease;
+    }
+
+    .encryption-percentage {
+      color: #818cf8;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .encryption-file-name {
+      color: #cbd5e1;
+      font-size: 0.8rem;
+      margin-top: 8px;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* Success state */
+    .encryption-success {
+      display: none;
+    }
+
+    .encryption-success.active {
+      display: block;
+      animation: encryptSuccess 0.5s ease;
+    }
+
+    .encryption-success .checkmark {
+      font-size: 4rem;
+      display: block;
+      margin-bottom: 12px;
+    }
+
+    .encryption-success .success-text {
+      color: #34d399;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    /* Particles */
+    .particle-container {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 99999;
+      overflow: hidden;
+    }
+
+    .particle {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #4f46e5;
+      opacity: 0;
+    }
+
+    /* ===== GLOBAL ===== */
+    * { transition: all 0.3s ease; }
+    
+    body {
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+      background: #0f1724;
+      color: #f1f5f9;
+      -webkit-font-smoothing: antialiased;
+      margin: 0;
+      min-height: 100vh;
+    }
+
+    /* ===== SCROLLBAR ===== */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(255,255,255,0.03);
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(79, 70, 229, 0.3);
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(79, 70, 229, 0.5);
+    }
+
+    /* ===== ANIMATED BACKGROUND ===== */
+    .bg-gradient-animated {
+      background: linear-gradient(-45deg, #0f1724, #1e1b4b, #0f1724, #1a1a2e);
+      background-size: 400% 400%;
+      animation: gradient-shift 15s ease infinite;
+    }
+
+    /* ===== FLOATING ORBS ===== */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.2;
+      pointer-events: none;
+      z-index: 0;
+      animation: float 8s ease-in-out infinite;
+    }
+    
+    .orb-1 {
+      width: 300px;
+      height: 300px;
+      background: #4f46e5;
+      top: -100px;
+      right: -100px;
+      animation-delay: 0s;
+    }
+    
+    .orb-2 {
+      width: 400px;
+      height: 400px;
+      background: #06b6d4;
+      bottom: -150px;
+      left: -150px;
+      animation-delay: 2s;
+    }
+    
+    .orb-3 {
+      width: 200px;
+      height: 200px;
+      background: #764ba2;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      animation-delay: 4s;
+    }
+
+    /* ===== NAVIGATION ===== */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(15, 23, 36, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: #f1f5f9;
+    }
+
+    .nav-brand span {
+      background: linear-gradient(135deg, #4f46e5, #06b6d4);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.7rem;
+      color: white;
+    }
+
+    .session-timer {
+      font-size: 0.8rem;
+      font-weight: 600;
+      font-family: monospace;
+      padding: 4px 12px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      min-width: 70px;
+      text-align: center;
+    }
+
+    .session-timer.warning { color: #fbbf24; border-color: rgba(251, 191, 36, 0.2); background: rgba(251, 191, 36, 0.05); }
+    .session-timer.danger { color: #ef4444; border-color: rgba(239, 68, 68, 0.2); background: rgba(239, 68, 68, 0.05); animation: pulse 1s infinite; }
+    .session-timer.secure { color: #10b981; border-color: rgba(16, 185, 129, 0.2); background: rgba(16, 185, 129, 0.05); }
+
+    .btn-logout {
+      background: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+      padding: 8px 16px;
+      border-radius: 10px;
+      border: 1px solid rgba(239, 68, 68, 0.1);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 0.85rem;
+    }
+
+    .btn-logout:hover {
+      background: rgba(239, 68, 68, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .user-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.05);
+      padding: 6px 14px 6px 10px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.05);
+      font-size: 0.85rem;
+      color: #cbd5e1;
+    }
+
+    .user-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #4f46e5, #06b6d4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: white;
+    }
+
+    /* ===== STATS CARDS ===== */
+    .stat-card {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 16px;
+      padding: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      transition: all 0.3s;
+      animation: fadeInUp 0.6s ease both;
+      cursor: default;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(79, 70, 229, 0.2);
+      background: rgba(255, 255, 255, 0.05);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    }
+
+    .stat-number {
+      font-size: 1rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #fff, #818cf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stat-label {
+      color: #94a3b8;
+      font-size: 0.85rem;
+      margin-top: 4px;
+    }
+
+    /* ===== DROP ZONE ===== */
+    .drop-zone {
+      border: 2px dashed rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 48px;
+      text-align: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.02);
+    }
+    
+    .drop-zone:hover {
+      border-color: rgba(79, 70, 229, 0.3);
+      background: rgba(255, 255, 255, 0.04);
+    }
+    
+    .drop-zone.dragover {
+      border-color: #4f46e5;
+      background: rgba(79, 70, 229, 0.05);
+      transform: scale(1.02);
+    }
+    
+    .drop-zone.dragover .drop-text {
+      color: #818cf8;
+    }
+
+    .drop-text .icon {
+      font-size: 3rem;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .drop-text .sub-text {
+      color: #64748b;
+      font-size: 0.9rem;
+    }
+
+    /* ===== FILE CARDS ===== */
+    .file-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 16px;
+    }
+
+    @media (max-width: 640px) {
+      .file-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      }
+    }
+    
+    .file-card {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 16px;
+      padding: 20px 16px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      transition: all 0.3s ease;
+      animation: fadeInUp 0.6s ease both;
+      position: relative;
+    }
+    
+    .file-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(79, 70, 229, 0.3);
+      background: rgba(255, 255, 255, 0.06);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .file-icon {
+      width: 56px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 14px;
+      font-size: 28px;
+      margin: 0 auto 10px auto;
+    }
+    
+    .file-icon.image { background: rgba(251, 191, 36, 0.15); }
+    .file-icon.pdf { background: rgba(239, 68, 68, 0.15); }
+    .file-icon.doc { background: rgba(59, 130, 246, 0.15); }
+    .file-icon.video { background: rgba(139, 92, 246, 0.15); }
+    .file-icon.audio { background: rgba(16, 185, 129, 0.15); }
+    .file-icon.zip { background: rgba(251, 191, 36, 0.1); }
+    .file-icon.code { background: rgba(16, 185, 129, 0.1); }
+    .file-icon.other { background: rgba(255, 255, 255, 0.05); }
+
+    .file-name {
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: #f1f5f9;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 4px;
+    }
+
+    .file-meta {
+      color: #94a3b8;
+      font-size: 0.7rem;
+      text-align: center;
+      margin-top: 4px;
+    }
+
+    .file-time {
+      color: #64748b;
+      font-size: 0.6rem;
+      text-align: center;
+      margin-top: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .file-actions {
+      display: flex;
+      gap: 4px;
+      justify-content: center;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .file-actions button {
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 0.65rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .file-actions .btn-download {
+      background: rgba(59, 130, 246, 0.15);
+      color: #60a5fa;
+    }
+
+    .file-actions .btn-download:hover {
+      background: rgba(59, 130, 246, 0.25);
+      transform: scale(1.05);
+    }
+
+    .file-actions .btn-preview {
+      background: rgba(139, 92, 246, 0.15);
+      color: #a78bfa;
+    }
+
+    .file-actions .btn-preview:hover {
+      background: rgba(139, 92, 246, 0.25);
+      transform: scale(1.05);
+    }
+
+    .file-actions .btn-delete {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+    }
+
+    .file-actions .btn-delete:hover {
+      background: rgba(239, 68, 68, 0.25);
+      transform: scale(1.05);
+    }
+
+    /* ===== SECTION CARDS ===== */
+    .section-card {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 20px;
+      padding: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      animation: fadeInUp 0.8s ease both;
+    }
+
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #f1f5f9;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    /* ===== SEARCH & SORT ===== */
+    .search-box {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 10px 16px;
+      width: 100%;
+      color: #f1f5f9;
+      transition: all 0.3s;
+      font-size: 0.9rem;
+    }
+
+    .search-box::placeholder {
+      color: #64748b;
+    }
+
+    .search-box:focus {
+      outline: none;
+      border-color: #4f46e5;
+      background: rgba(255, 255, 255, 0.08);
+      box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+    }
+
+    .sort-select {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 10px 16px;
+      color: #f1f5f9;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 0.9rem;
+    }
+
+    .sort-select:focus {
+      outline: none;
+      border-color: #4f46e5;
+    }
+
+    .sort-select option {
+      background: #1e293b;
+      color: #f1f5f9;
+    }
+
+    /* ===== TOAST ===== */
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      padding: 16px 24px;
+      border-radius: 14px;
+      color: white;
+      font-weight: 500;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.4s ease;
+      z-index: 1000;
+      max-width: 400px;
+      border: 1px solid rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    
+    .toast.success { background: #10b981; }
+    .toast.error { background: #ef4444; }
+    .toast.info { background: #3b82f6; }
+    .toast.warning { background: #f59e0b; }
+
+    .toast .toast-icon {
+      font-size: 1.2rem;
+    }
+
+    /* ===== MODAL ===== */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(8px);
+      z-index: 999;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .modal-overlay.active {
+      display: flex;
+    }
+    
+    .modal-box {
+      background: #1e293b;
+      border-radius: 20px;
+      padding: 32px;
+      max-width: 600px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      animation: slideDown 300ms ease;
+    }
+
+    .modal-close-btn {
+      width: 100%;
+      padding: 12px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 12px;
+      color: #94a3b8;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 16px;
+    }
+
+    .modal-close-btn:hover {
+      background: rgba(255,255,255,0.1);
+    }
+
+    /* ===== EMPTY STATE ===== */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+    }
+
+    .empty-state-icon {
+      font-size: 80px;
+      margin-bottom: 20px;
+      opacity: 0.3;
+    }
+
+    .empty-state h3 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #94a3b8;
+      margin-bottom: 8px;
+    }
+
+    .empty-state p {
+      color: #64748b;
+    }
+
+    /* ===== PROGRESS ===== */
+    .upload-progress {
+      height: 4px;
+      background: linear-gradient(90deg, #4f46e5, #06b6d4);
+      width: 0%;
+      transition: width 0.5s ease;
+      border-radius: 2px;
+    }
+
+    /* ===== FILE TYPE BADGE ===== */
+    .file-type-badge {
+      display: inline-block;
+      padding: 1px 8px;
+      border-radius: 10px;
+      font-size: 0.55rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      background: rgba(255,255,255,0.05);
+      color: #94a3b8;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 640px) {
+      .stat-number { font-size: 1.5rem; }
+      .drop-zone { padding: 32px 20px; }
+      .section-card { padding: 16px; }
+      .file-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+      .navbar .flex-wrap { gap: 8px; }
+      .session-timer { font-size: 0.7rem; padding: 2px 8px; min-width: 60px; }
+      .user-badge { font-size: 0.75rem; padding: 4px 10px; }
+      .toast { bottom: 16px; right: 16px; left: 16px; max-width: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== ENCRYPTION OVERLAY ===== -->
+  <div id="encryptionOverlay" class="encryption-overlay">
+    <div class="encryption-box">
+      <div id="encryptionSpinner" class="encryption-spinner"></div>
+      <span id="encryptionLock" class="encryption-lock">🔐</span>
+      
+      <div class="encryption-title" id="encryptionTitle">Encrypting Your File</div>
+      <div class="encryption-subtitle" id="encryptionSubtitle">AES-256-GCM encryption in progress</div>
+      
+      <div class="encryption-progress-bar">
+        <div class="encryption-progress-fill" id="encryptionProgressFill"></div>
+      </div>
+      
+      <div class="encryption-percentage" id="encryptionPercentage">0%</div>
+      <div class="encryption-file-name" id="encryptionFileName">file.pdf</div>
+      
+      <div id="encryptionSuccess" class="encryption-success">
+        <span class="checkmark">✅</span>
+        <div class="success-text">Encryption Complete!</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PARTICLE CONTAINER ===== -->
+  <div id="particleContainer" class="particle-container"></div>
+
+  <!-- ===== BACKGROUND ORBS ===== -->
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <!-- ===== TOAST ===== -->
+  <div id="toast" class="toast"></div>
+
+  <!-- ===== PREVIEW MODAL ===== -->
+  <div id="previewModal" class="modal-overlay">
+    <div class="modal-box">
+      <div id="previewContent"></div>
+      <button class="modal-close-btn" onclick="closePreview()">✕ Close</button>
+    </div>
+  </div>
+
+  <!-- ===== NAVIGATION ===== -->
+  <nav class="navbar">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-3">
+      <div class="nav-brand">
+        🔒 SecureCloud
+        <span>v2.0</span>
+      </div>
+      
+      <div class="flex items-center gap-3 flex-wrap">
+        <span id="sessionTimer" class="session-timer secure">⏰ 05:00</span>
+        <div class="user-badge">
+          <div class="user-avatar" id="userAvatar">U</div>
+          <span id="userDisplay">Loading...</span>
+        </div>
+        <button id="logoutBtn" class="btn-logout">
+          🚪 Logout
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <div class="max-w-6xl mx-auto px-4 py-6 relative z-10">
+    
+    <!-- ===== STATS ===== -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div class="stat-card">
+        <div class="stat-number" id="totalFiles">0</div>
+        <div class="stat-label">📁 Total Files</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="totalSize">0 B</div>
+        <div class="stat-label">💾 Total Size</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="fileTypes">0</div>
+        <div class="stat-label">📊 File Types</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="lastUpload">-</div>
+        <div class="stat-label">⏰ Last Upload</div>
+      </div>
+    </div>
+
+    <!-- ===== UPLOAD SECTION ===== -->
+    <div class="section-card mb-6">
+      <div class="section-title">
+        <span>📤</span> Upload Files
+        <span class="text-xs text-gray-500 ml-auto">Max 200MB per file</span>
+      </div>
+      
+      <div id="dropZone" class="drop-zone" onclick="document.getElementById('fileInput').click()">
+        <div class="drop-text">
+          <span class="icon">📁</span>
+          <p class="text-gray-300 font-medium">Drop files here or click to browse</p>
+          <p class="sub-text">Supports any file type • Encrypted before upload</p>
+        </div>
+        <input type="file" id="fileInput" class="hidden" multiple onchange="handleFiles(this.files)" />
+      </div>
+      
+      <div id="uploadProgress" class="mt-3 hidden">
+        <div class="flex justify-between text-sm mb-1">
+          <span id="uploadFileName" class="text-gray-400">Uploading...</span>
+          <span id="uploadPercent" class="text-gray-400">0%</span>
+        </div>
+        <div class="w-full bg-white/5 rounded-full h-2 overflow-hidden">
+          <div id="progressBar" class="upload-progress"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== FILES SECTION ===== -->
+    <div class="section-card">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+        <div class="section-title" style="margin-bottom: 0;">
+          <span>📁</span> Your Files
+          <span id="fileCount" class="text-xs text-gray-500 font-normal">(0)</span>
+        </div>
+        
+        <div class="flex gap-2 w-full sm:w-auto">
+          <input 
+            type="text" 
+            id="searchInput" 
+            class="search-box text-sm" 
+            placeholder="🔍 Search files..." 
+            oninput="filterFiles(this.value)"
+          />
+          <select id="sortSelect" class="sort-select text-sm" onchange="sortFiles(this.value)">
+            <option value="newest">Newest</option>
+            <option value="oldest">Oldest</option>
+            <option value="az">A-Z</option>
+            <option value="za">Z-A</option>
+            <option value="size">📊 Size</option>
+          </select>
+        </div>
+      </div>
+      
+      <div id="fileList" class="file-grid">
+        <!-- Files rendered here -->
+      </div>
+      
+      <div id="emptyState" class="empty-state hidden">
+        <div class="empty-state-icon">📭</div>
+        <h3>No files yet</h3>
+        <p>Upload your first file using the drop zone above!</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ============================================
+    // ENCRYPTION ANIMATION FUNCTIONS
+    // ============================================
+    
+    function showEncryptionAnimation(fileName) {
+      const overlay = document.getElementById('encryptionOverlay');
+      const spinner = document.getElementById('encryptionSpinner');
+      const lock = document.getElementById('encryptionLock');
+      const title = document.getElementById('encryptionTitle');
+      const subtitle = document.getElementById('encryptionSubtitle');
+      const progressFill = document.getElementById('encryptionProgressFill');
+      const percentage = document.getElementById('encryptionPercentage');
+      const fileNameEl = document.getElementById('encryptionFileName');
+      const successEl = document.getElementById('encryptionSuccess');
+      
+      // Reset everything
+      successEl.classList.remove('active');
+      spinner.style.display = 'block';
+      lock.style.display = 'block';
+      lock.textContent = '🔐';
+      title.textContent = 'Encrypting Your File';
+      subtitle.textContent = 'AES-256-GCM encryption in progress';
+      progressFill.style.width = '0%';
+      percentage.textContent = '0%';
+      fileNameEl.textContent = fileName;
+      
+      // Show overlay
+      overlay.classList.add('active');
+      
+      // Animate progress
+      let progress = 0;
+      const interval = setInterval(() => {
+        progress += Math.random() * 8 + 2;
+        if (progress > 100) progress = 100;
+        
+        progressFill.style.width = progress + '%';
+        percentage.textContent = Math.floor(progress) + '%';
+        
+        // Update lock icon based on progress
+        if (progress > 80) {
+          lock.textContent = '🔓';
+        } else if (progress > 50) {
+          lock.textContent = '🔒';
+        }
+        
+        if (progress >= 100) {
+          clearInterval(interval);
+          // Success state
+          setTimeout(() => {
+            spinner.style.display = 'none';
+            lock.style.display = 'none';
+            title.textContent = '✅ Encryption Complete!';
+            subtitle.textContent = 'Your file is now secure and stored';
+            successEl.classList.add('active');
+            
+            // Spawn particles
+            spawnParticles();
+            
+            // Hide after 1.5 seconds
+            setTimeout(() => {
+              overlay.classList.remove('active');
+              // Reset for next use
+              setTimeout(() => {
+                successEl.classList.remove('active');
+                spinner.style.display = 'block';
+                lock.style.display = 'block';
+                lock.textContent = '🔐';
+                title.textContent = 'Encrypting Your File';
+                subtitle.textContent = 'AES-256-GCM encryption in progress';
+                progressFill.style.width = '0%';
+                percentage.textContent = '0%';
+              }, 300);
+            }, 1500);
+          }, 300);
+        }
+      }, 80);
+    }
+    
+    function spawnParticles() {
+      const container = document.getElementById('particleContainer');
+      const colors = ['#4f46e5', '#06b6d4', '#818cf8', '#34d399', '#fbbf24', '#a78bfa'];
+      
+      for (let i = 0; i < 50; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        
+        const size = Math.random() * 8 + 4;
+        const x = Math.random() * window.innerWidth;
+        const y = Math.random() * window.innerHeight;
+        const tx = (Math.random() - 0.5) * 400;
+        const ty = (Math.random() - 0.5) * 400;
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        
+        particle.style.cssText = `
+          position: absolute;
+          width: ${size}px;
+          height: ${size}px;
+          left: ${x}px;
+          top: ${y}px;
+          background: ${color};
+          border-radius: 50%;
+          pointer-events: none;
+          opacity: 1;
+          --tx: ${tx}px;
+          --ty: ${ty}px;
+          animation: encryptParticles 1s ease-out forwards;
+          animation-delay: ${Math.random() * 0.3}s;
+        `;
+        
+        container.appendChild(particle);
+        
+        // Remove after animation
+        setTimeout(() => {
+          particle.remove();
+        }, 1500);
+      }
+    }
+    
+    // ============================================
+    // REAL AES-GCM ENCRYPTION (Web Crypto API)
+    // ============================================
+    
+    async function getEncryptionKey(username) {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(username + 'secure-cloud-drive-salt');
+      const hash = await crypto.subtle.digest('SHA-256', data);
+      return await crypto.subtle.importKey(
+        'raw',
+        hash,
+        { name: 'AES-GCM' },
+        false,
+        ['encrypt', 'decrypt']
+      );
+    }
+    
+    async function encryptFile(arrayBuffer, username) {
+      const key = await getEncryptionKey(username);
+      const iv = crypto.getRandomValues(new Uint8Array(12));
+      
+      const encrypted = await crypto.subtle.encrypt(
+        { name: 'AES-GCM', iv: iv },
+        key,
+        arrayBuffer
+      );
+      
+      const result = new Uint8Array(iv.length + encrypted.byteLength);
+      result.set(iv, 0);
+      result.set(new Uint8Array(encrypted), iv.length);
+      
+      return result;
+    }
+    
+    async function decryptFile(encryptedData, username) {
+      const key = await getEncryptionKey(username);
+      const iv = encryptedData.slice(0, 12);
+      const data = encryptedData.slice(12);
+      
+      try {
+        const decrypted = await crypto.subtle.decrypt(
+          { name: 'AES-GCM', iv: iv },
+          key,
+          data
+        );
+        return decrypted;
+      } catch (err) {
+        console.error('Decryption failed:', err);
+        throw new Error('Failed to decrypt file. Wrong key or corrupted data.');
+      }
+    }
+    
+    // ============================================
+    // API CALLS (Works locally and deployed)
+    // ============================================
+    
+    async function apiCall(endpoint, options = {}) {
+      const token = localStorage.getItem('token');
+      
+      const response = await fetch(endpoint, {
+        ...options,
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          ...options.headers
+        }
+      });
+      
+      if (response.status === 401) {
+        localStorage.clear();
+        window.location.href = '/';
+        throw new Error('Session expired. Please login again.');
+      }
+      
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ message: 'Request failed' }));
+        throw new Error(error.message || 'API call failed');
+      }
+      
+      return response.json();
+    }
+    
+    // ============================================
+    // APP STATE
+    // ============================================
+    
+    let currentUser = null;
+    let allFiles = [];
+    let filteredFiles = [];
+    let uploadQueue = [];
+    let isUploading = false;
+    
+    // ============================================
+    // INIT
+    // ============================================
+    
+    async function init() {
+      const token = localStorage.getItem('token');
+      const user = localStorage.getItem('user');
+      
+      if (!token || !user) {
+        window.location.href = '/';
+        return;
+      }
+      
+      try {
+        currentUser = JSON.parse(user);
+        document.getElementById('userDisplay').textContent = currentUser.name || currentUser.id || 'User';
+        document.getElementById('userAvatar').textContent = (currentUser.name || currentUser.id || 'U').charAt(0).toUpperCase();
+      } catch (e) {
+        console.error('Error parsing user:', e);
+        window.location.href = '/';
+        return;
+      }
+      
+      setupDragDrop();
+      await loadFiles();
+      checkSessionStatus();
+      setupActivityTracking();
+      setupLogoutButton();
+    }
+    
+    // ============================================
+    // DRAG & DROP
+    // ============================================
+    
+    function setupDragDrop() {
+      const dropZone = document.getElementById('dropZone');
+      
+      dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+      });
+      
+      dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('dragover');
+      });
+      
+      dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+          handleFiles(files);
+        }
+      });
+    }
+    
+    // ============================================
+    // FILE HANDLING
+    // ============================================
+    
+    async function handleFiles(fileList) {
+      const files = Array.from(fileList);
+      
+      for (const file of files) {
+        if (file.size > 200 * 1024 * 1024) {
+          showToast(`⚠️ ${file.name} is too large (max 200MB)`, 'error');
+          continue;
+        }
+        uploadQueue.push(file);
+      }
+      
+      if (!isUploading) {
+        processQueue();
+      }
+    }
+    
+    async function processQueue() {
+      if (uploadQueue.length === 0) {
+        isUploading = false;
+        return;
+      }
+      
+      isUploading = true;
+      const file = uploadQueue.shift();
+      
+      try {
+        await uploadFile(file);
+        await loadFiles();
+      } catch (err) {
+        showToast(`❌ Failed to upload ${file.name}: ${err.message}`, 'error');
+      }
+      
+      processQueue();
+    }
+    
+    async function uploadFile(file) {
+      const progressDiv = document.getElementById('uploadProgress');
+      const fileNameEl = document.getElementById('uploadFileName');
+      const percentEl = document.getElementById('uploadPercent');
+      const progressBar = document.getElementById('progressBar');
+      
+      progressDiv.classList.remove('hidden');
+      fileNameEl.textContent = `🔐 Encrypting: ${file.name}`;
+      percentEl.textContent = '0%';
+      progressBar.style.width = '0%';
+      
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        
+        fileNameEl.textContent = `🔐 Encrypting: ${file.name}`;
+        percentEl.textContent = '50%';
+        progressBar.style.width = '50%';
+        
+        // Show encryption animation
+        showEncryptionAnimation(file.name);
+        
+        const encrypted = await encryptFile(arrayBuffer, currentUser.name || currentUser.id);
+        
+        const uint8Array = new Uint8Array(encrypted);
+        let binary = '';
+        for (let i = 0; i < uint8Array.length; i++) {
+          binary += String.fromCharCode(uint8Array[i]);
+        }
+        const base64Data = btoa(binary);
+        
+        fileNameEl.textContent = `📤 Uploading: ${file.name}`;
+        percentEl.textContent = '75%';
+        progressBar.style.width = '75%';
+        
+        await apiCall('/uploadEncrypted', {
+          method: 'POST',
+          body: JSON.stringify({
+            fileName: file.name,
+            encryptedData: base64Data,
+            fileSize: file.size,
+            fileType: file.type
+          })
+        });
+        
+        percentEl.textContent = '100%';
+        progressBar.style.width = '100%';
+        
+        showToast(`✅ ${file.name} uploaded successfully!`, 'success');
+        
+      } catch (err) {
+        console.error('Upload error:', err);
+        throw err;
+      } finally {
+        setTimeout(() => {
+          progressDiv.classList.add('hidden');
+        }, 1000);
+      }
+    }
+    
+    // ============================================
+    // LOAD FILES
+    // ============================================
+    
+    async function loadFiles() {
+      try {
+        const data = await apiCall('/files');
+        if (data.files && Array.isArray(data.files)) {
+          allFiles = data.files;
+        } else {
+          allFiles = [];
+        }
+        filteredFiles = [...allFiles];
+        renderFiles();
+        updateStats();
+      } catch (err) {
+        console.error('Load files error:', err);
+        if (err.message.includes('Session expired')) {
+          return;
+        }
+        showToast('❌ Failed to load files', 'error');
+      }
+    }
+    
+    // ============================================
+    // RENDER FILES
+    // ============================================
+    
+    function renderFiles() {
+      const list = document.getElementById('fileList');
+      const empty = document.getElementById('emptyState');
+      const count = document.getElementById('fileCount');
+      
+      count.textContent = `(${filteredFiles.length})`;
+      
+      if (filteredFiles.length === 0) {
+        list.innerHTML = '';
+        empty.classList.remove('hidden');
+        return;
+      }
+      
+      empty.classList.add('hidden');
+      
+      list.innerHTML = filteredFiles.map(file => {
+        const fileId = typeof file === 'string' ? file : (file.id || file.name || file);
+        const fileName = typeof file === 'string' ? file : (file.name || file.id || file);
+        const fileSize = typeof file === 'object' ? (file.size || 0) : 0;
+        const fileDate = typeof file === 'object' ? (file.uploadedAt || '') : '';
+        
+        const icon = getFileIcon(fileName);
+        const size = formatSize(fileSize);
+        const date = fileDate ? new Date(fileDate).toLocaleDateString() : 'N/A';
+        const time = fileDate ? new Date(fileDate).toLocaleTimeString() : '';
+        const fileType = getFileType(fileName);
+        
+        return `
+          <div class="file-card">
+            <div class="file-icon ${icon.class}">${icon.emoji}</div>
+            <div class="file-name" title="${fileName}">${fileName}</div>
+            <div class="file-meta">
+              ${size} 
+              <span class="file-type-badge">${fileType}</span>
+            </div>
+            <div class="file-time">
+              🕐 ${date} ${time}
+            </div>
+            <div class="file-actions">
+              <button class="btn-download" onclick="downloadFile('${fileId}')">📥 Download</button>
+              <button class="btn-preview" onclick="previewFile('${fileId}')">👁️ Preview</button>
+              <button class="btn-delete" onclick="deleteFile('${fileId}')">🗑️</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+    
+    function getFileType(filename) {
+      if (!filename || typeof filename !== 'string') return 'FILE';
+      const ext = filename.split('.').pop()?.toLowerCase() || '';
+      const types = {
+        'pdf': 'PDF', 'doc': 'DOC', 'docx': 'DOCX', 'txt': 'TXT', 'md': 'MD',
+        'rtf': 'RTF', 'jpg': 'JPG', 'jpeg': 'JPEG', 'png': 'PNG', 'gif': 'GIF',
+        'svg': 'SVG', 'webp': 'WEBP', 'ico': 'ICO', 'mp4': 'MP4', 'avi': 'AVI',
+        'mov': 'MOV', 'mkv': 'MKV', 'webm': 'WEBM', 'flv': 'FLV', 'mp3': 'MP3',
+        'wav': 'WAV', 'flac': 'FLAC', 'aac': 'AAC', 'ogg': 'OGG', 'zip': 'ZIP',
+        'rar': 'RAR', '7z': '7Z', 'tar': 'TAR', 'gz': 'GZ', 'js': 'JS',
+        'html': 'HTML', 'css': 'CSS', 'json': 'JSON', 'xml': 'XML', 'py': 'PY',
+        'java': 'JAVA', 'cpp': 'CPP', 'c': 'C', 'go': 'GO', 'rs': 'RS',
+        'swift': 'SWIFT', 'kt': 'KT', 'rb': 'RB', 'php': 'PHP'
+      };
+      return types[ext] || ext.toUpperCase() || 'FILE';
+    }
+    
+    function getFileIcon(filename) {
+      if (!filename || typeof filename !== 'string') {
+        return { class: 'other', emoji: '📎' };
+      }
+      const ext = filename.split('.').pop()?.toLowerCase() || '';
+      const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'webp', 'ico'];
+      const pdfExts = ['pdf'];
+      const docExts = ['doc', 'docx', 'txt', 'md', 'rtf'];
+      const videoExts = ['mp4', 'avi', 'mov', 'mkv', 'webm', 'flv'];
+      const audioExts = ['mp3', 'wav', 'flac', 'aac', 'ogg'];
+      const zipExts = ['zip', 'rar', '7z', 'tar', 'gz'];
+      const codeExts = ['js', 'html', 'css', 'json', 'xml', 'py', 'java', 'cpp', 'c', 'go', 'rs', 'swift', 'kt', 'rb', 'php'];
+      
+      if (imageExts.includes(ext)) return { class: 'image', emoji: '🖼️' };
+      if (pdfExts.includes(ext)) return { class: 'pdf', emoji: '📄' };
+      if (docExts.includes(ext)) return { class: 'doc', emoji: '📝' };
+      if (videoExts.includes(ext)) return { class: 'video', emoji: '🎬' };
+      if (audioExts.includes(ext)) return { class: 'audio', emoji: '🎵' };
+      if (zipExts.includes(ext)) return { class: 'zip', emoji: '📦' };
+      if (codeExts.includes(ext)) return { class: 'code', emoji: '💻' };
+      return { class: 'other', emoji: '📎' };
+    }
+    
+    function formatSize(bytes) {
+      if (!bytes || bytes === 0) return '0 B';
+      const sizes = ['B', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(1024));
+      const size = (bytes / Math.pow(1024, i)).toFixed(1);
+      return `${size} ${sizes[i]}`;
+    }
+    
+    // ============================================
+    // FILTER & SORT
+    // ============================================
+    
+    function filterFiles(query) {
+      const search = query.toLowerCase().trim();
+      if (!search) {
+        filteredFiles = [...allFiles];
+      } else {
+        filteredFiles = allFiles.filter(f => {
+          const name = typeof f === 'string' ? f : (f.name || f.id || '');
+          return name.toLowerCase().includes(search);
+        });
+      }
+      renderFiles();
+    }
+    
+    function sortFiles(by) {
+      const sorters = {
+        'newest': (a, b) => {
+          const aDate = typeof a === 'object' ? new Date(a.uploadedAt || 0) : 0;
+          const bDate = typeof b === 'object' ? new Date(b.uploadedAt || 0) : 0;
+          return bDate - aDate;
+        },
+        'oldest': (a, b) => {
+          const aDate = typeof a === 'object' ? new Date(a.uploadedAt || 0) : 0;
+          const bDate = typeof b === 'object' ? new Date(b.uploadedAt || 0) : 0;
+          return aDate - bDate;
+        },
+        'az': (a, b) => {
+          const aName = typeof a === 'string' ? a : (a.name || a.id || '');
+          const bName = typeof b === 'string' ? b : (b.name || b.id || '');
+          return aName.localeCompare(bName);
+        },
+        'za': (a, b) => {
+          const aName = typeof a === 'string' ? a : (a.name || a.id || '');
+          const bName = typeof b === 'string' ? b : (b.name || b.id || '');
+          return bName.localeCompare(aName);
+        },
+        'size': (a, b) => {
+          const aSize = typeof a === 'object' ? (a.size || 0) : 0;
+          const bSize = typeof b === 'object' ? (b.size || 0) : 0;
+          return bSize - aSize;
+        }
+      };
+      
+      filteredFiles.sort(sorters[by] || sorters['newest']);
+      renderFiles();
+    }
+    
+    // ============================================
+    // DOWNLOAD FILE
+    // ============================================
+    
+    async function downloadFile(fileId) {
+      try {
+        showToast(`📥 Downloading ${fileId}...`, 'info');
+        
+        const data = await apiCall(`/files/${encodeURIComponent(fileId)}`);
+        
+        const binary = atob(data.data);
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) {
+          bytes[i] = binary.charCodeAt(i);
+        }
+        
+        showToast(`🔐 Decrypting ${fileId}...`, 'info');
+        
+        const decrypted = await decryptFile(bytes, currentUser.name || currentUser.id);
+        
+        const blob = new Blob([decrypted]);
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = data.fileName || fileId;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        showToast(`✅ ${fileId} downloaded!`, 'success');
+        
+      } catch (err) {
+        console.error('Download error:', err);
+        showToast(`❌ Download failed: ${err.message}`, 'error');
+      }
+    }
+    
+    // ============================================
+    // PREVIEW FILE
+    // ============================================
+    
+    async function previewFile(fileId) {
+      try {
+        const data = await apiCall(`/files/${encodeURIComponent(fileId)}`);
+        
+        const binary = atob(data.data);
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) {
+          bytes[i] = binary.charCodeAt(i);
+        }
+        
+        const decrypted = await decryptFile(bytes, currentUser.name || currentUser.id);
+        const blob = new Blob([decrypted]);
+        const url = URL.createObjectURL(blob);
+        
+        const modal = document.getElementById('previewModal');
+        const content = document.getElementById('previewContent');
+        
+        const isImage = data.fileType?.startsWith('image/') || 
+                       /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(fileId);
+        
+        if (isImage) {
+          content.innerHTML = `
+            <h3 class="text-xl font-bold text-white mb-3">🖼️ ${fileId}</h3>
+            <img src="${url}" class="w-full rounded-lg max-h-[60vh] object-contain" alt="${fileId}" />
+          `;
+        } else if (data.fileType?.startsWith('text/') || /\.(txt|md|js|html|css|json)$/i.test(fileId)) {
+          const text = await blob.text();
+          content.innerHTML = `
+            <h3 class="text-xl font-bold text-white mb-3">📝 ${fileId}</h3>
+            <pre class="bg-black/20 p-4 rounded-lg overflow-auto max-h-[60vh] text-sm font-mono whitespace-pre-wrap text-gray-300">${text}</pre>
+          `;
+        } else {
+          content.innerHTML = `
+            <h3 class="text-xl font-bold text-white mb-3">📎 ${fileId}</h3>
+            <div class="text-center py-8">
+              <div class="text-6xl mb-4">${getFileIcon(fileId).emoji}</div>
+              <p class="text-gray-400">Preview not available for this file type</p>
+              <p class="text-sm text-gray-500 mt-2">Size: ${formatSize(data.fileSize || 0)}</p>
+              <button onclick="downloadFile('${fileId}')" class="mt-4 bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600">
+                📥 Download to view
+              </button>
+            </div>
+          `;
+        }
+        
+        modal.classList.add('active');
+        modal._url = url;
+        
+      } catch (err) {
+        showToast(`❌ Preview failed: ${err.message}`, 'error');
+      }
+    }
+    
+    function closePreview() {
+      const modal = document.getElementById('previewModal');
+      modal.classList.remove('active');
+      if (modal._url) {
+        URL.revokeObjectURL(modal._url);
+        modal._url = null;
+      }
+    }
+    
+    // ============================================
+    // DELETE FILE
+    // ============================================
+    
+    async function deleteFile(fileId) {
+      if (!confirm(`Delete "${fileId}"? This cannot be undone.`)) return;
+      
+      try {
+        await apiCall(`/files/${encodeURIComponent(fileId)}`, { method: 'DELETE' });
+        await loadFiles();
+        showToast(`🗑️ ${fileId} deleted`, 'info');
+        
+      } catch (err) {
+        showToast(`❌ Delete failed: ${err.message}`, 'error');
+      }
+    }
+    
+    // ============================================
+    // STATS - FIXED
+    // ============================================
+    
+    function updateStats() {
+      // Update total files count
+      document.getElementById('totalFiles').textContent = allFiles.length;
+      
+      let totalSize = 0;
+      let typeSet = new Set();
+      let lastUpload = '-';
+      let lastUploadDate = null;
+      
+      allFiles.forEach(file => {
+        // Calculate total size
+        if (file.size) {
+          totalSize += file.size;
+        }
+        
+        // Track file types
+        if (file.type) {
+          const type = file.type.split('/')[0];
+          if (type) typeSet.add(type);
+        }
+        
+        // Find last upload with date comparison
+        if (file.uploadedAt) {
+          const date = new Date(file.uploadedAt);
+          if (!lastUploadDate || date > lastUploadDate) {
+            lastUploadDate = date;
+            // Format with date and time
+            lastUpload = date.toLocaleString('en-US', {
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+              second: '2-digit'
+            });
+          }
+        }
+      });
+      
+      // Update the DOM
+      document.getElementById('totalSize').textContent = formatSize(totalSize);
+      document.getElementById('fileTypes').textContent = typeSet.size || '0';
+      document.getElementById('lastUpload').textContent = lastUpload;
+    }
+    
+    // ============================================
+    // TOAST NOTIFICATIONS
+    // ============================================
+    
+    function showToast(message, type = 'info') {
+      const toast = document.getElementById('toast');
+      const iconMap = {
+        'success': '✅',
+        'error': '❌',
+        'warning': '⚠️',
+        'info': 'ℹ️'
+      };
+      toast.innerHTML = `<span class="toast-icon">${iconMap[type] || 'ℹ️'}</span> ${message}`;
+      toast.className = `toast ${type}`;
+      
+      void toast.offsetWidth;
+      
+      toast.classList.add('show');
+      
+      clearTimeout(toast._timeout);
+      toast._timeout = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 4000);
+    }
+    
+    // ============================================
+    // SESSION MANAGEMENT
+    // ============================================
+    
+    let sessionTimer = null;
+    let timeRemaining = 300;
+    
+    function startSessionTimer() {
+      clearInterval(sessionTimer);
+      timeRemaining = 300;
+      
+      sessionTimer = setInterval(() => {
+        timeRemaining--;
+        updateTimerDisplay();
+        
+        if (timeRemaining === 60) {
+          showToast('⏰ Session will expire in 1 minute', 'warning');
+        }
+        
+        if (timeRemaining === 30) {
+          showToast('⚠️ Session expiring in 30 seconds!', 'error');
+        }
+        
+        if (timeRemaining <= 0) {
+          clearInterval(sessionTimer);
+          showToast('⏰ Session expired', 'error');
+          setTimeout(handleAutoLogout, 1000);
+        }
+      }, 1000);
+    }
+    
+    function updateTimerDisplay() {
+      const timerEl = document.getElementById('sessionTimer');
+      if (!timerEl) return;
+      
+      const mins = Math.floor(timeRemaining / 60);
+      const secs = timeRemaining % 60;
+      timerEl.textContent = `⏰ ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+      
+      timerEl.className = 'session-timer';
+      if (timeRemaining < 30) {
+        timerEl.classList.add('danger');
+      } else if (timeRemaining < 60) {
+        timerEl.classList.add('warning');
+      } else {
+        timerEl.classList.add('secure');
+      }
+    }
+    
+    function resetSessionTimer() {
+      timeRemaining = 300;
+      updateTimerDisplay();
+      
+      fetch('/api/session-status', {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      }).catch(() => {});
+    }
+    
+    function setupActivityTracking() {
+      const events = ['click', 'mousemove', 'keydown', 'scroll', 'touchstart'];
+      events.forEach(event => {
+        document.addEventListener(event, () => {
+          if (localStorage.getItem('token')) {
+            resetSessionTimer();
+          }
+        });
+      });
+    }
+    
+    async function handleAutoLogout() {
+      try {
+        const token = localStorage.getItem('token');
+        await fetch('/api/logout', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+      } catch (err) {}
+      
+      localStorage.clear();
+      clearInterval(sessionTimer);
+      window.location.href = '/';
+    }
+    
+    async function checkSessionStatus() {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          window.location.href = '/';
+          return;
+        }
+        
+        const response = await fetch('/api/session-status', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (!response.ok) {
+          const data = await response.json().catch(() => ({}));
+          if (data.expired) {
+            handleAutoLogout();
+            return;
+          }
+          throw new Error('Session check failed');
+        }
+        
+        const data = await response.json();
+        if (data.active) {
+          timeRemaining = data.timeRemaining || 300;
+          startSessionTimer();
+        }
+      } catch (err) {
+        console.error('Session check error:', err);
+        startSessionTimer();
+      }
+    }
+    
+    function setupLogoutButton() {
+      const logoutBtn = document.getElementById('logoutBtn');
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', handleAutoLogout);
+      }
+    }
+    
+    // ============================================
+    // START
+    // ============================================
+    
+    document.addEventListener('DOMContentLoaded', init);
+    
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closePreview();
+      }
+    });
+  </script>
+</body>
+</html>

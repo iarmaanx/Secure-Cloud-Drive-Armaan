@@ -1,0 +1,1309 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Secure Cloud Drive — Encrypted Storage</title>
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    /* ===== ANIMATIONS ===== */
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
+    }
+    
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 20px rgba(79, 70, 229, 0.2); }
+      50% { box-shadow: 0 0 40px rgba(79, 70, 229, 0.4); }
+    }
+    
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes gradient-shift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    
+    @keyframes scaleIn {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+      20%, 40%, 60%, 80% { transform: translateX(5px); }
+    }
+
+    /* ===== GLOBAL ===== */
+    * { transition: all 0.3s ease; }
+    
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+      background: #0f1724;
+      color: #f1f5f9;
+      -webkit-font-smoothing: antialiased;
+      margin: 0;
+      overflow-x: hidden;
+    }
+
+    /* ===== ANIMATED BACKGROUND ===== */
+    .bg-gradient-animated {
+      background: linear-gradient(-45deg, #0f1724, #1e1b4b, #0f1724, #1a1a2e);
+      background-size: 400% 400%;
+      animation: gradient-shift 15s ease infinite;
+    }
+
+    /* ===== FLOATING ORBS ===== */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.3;
+      pointer-events: none;
+      z-index: 0;
+      animation: float 8s ease-in-out infinite;
+    }
+    
+    .orb-1 {
+      width: 300px;
+      height: 300px;
+      background: #4f46e5;
+      top: -100px;
+      right: -100px;
+      animation-delay: 0s;
+    }
+    
+    .orb-2 {
+      width: 400px;
+      height: 400px;
+      background: #06b6d4;
+      bottom: -150px;
+      left: -150px;
+      animation-delay: 2s;
+    }
+    
+    .orb-3 {
+      width: 200px;
+      height: 200px;
+      background: #764ba2;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      animation-delay: 4s;
+    }
+
+    /* ===== NAVIGATION ===== */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: rgba(15, 23, 36, 0.8);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 16px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: #f1f5f9;
+    }
+
+    .nav-brand span {
+      background: linear-gradient(135deg, #4f46e5, #06b6d4);
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      color: white;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      align-items: center;
+    }
+
+    .nav-links a {
+      color: #94a3b8;
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.3s;
+      cursor: pointer;
+    }
+
+    .nav-links a:hover {
+      color: #f1f5f9;
+    }
+
+    .nav-btn {
+      background: linear-gradient(135deg, #4f46e5, #06b6d4);
+      color: white;
+      padding: 10px 24px;
+      border-radius: 10px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 0.9rem;
+    }
+
+    .nav-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(79, 70, 229, 0.3);
+    }
+
+    @media (max-width: 768px) {
+      .navbar { padding: 12px 20px; flex-wrap: wrap; gap: 12px; }
+      .nav-links { gap: 16px; flex-wrap: wrap; }
+      .nav-links a { font-size: 0.8rem; }
+    }
+
+    /* ===== SECTIONS ===== */
+    section {
+      position: relative;
+      z-index: 1;
+      padding: 80px 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 768px) {
+      section { padding: 60px 20px; }
+    }
+
+    .section-title {
+      font-size: 2.5rem;
+      font-weight: 800;
+      text-align: center;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, #fff 0%, #818cf8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .section-subtitle {
+      text-align: center;
+      color: #94a3b8;
+      font-size: 1.1rem;
+      max-width: 600px;
+      margin: 0 auto 48px auto;
+      line-height: 1.7;
+    }
+
+    /* ===== HERO SECTION ===== */
+    #hero {
+      padding-top: 140px;
+      padding-bottom: 60px;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+      width: 100%;
+    }
+
+    @media (max-width: 900px) {
+      .hero-grid { grid-template-columns: 1fr; gap: 40px; text-align: center; }
+    }
+
+    .hero-title {
+      font-size: 3.5rem;
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #fff 0%, #818cf8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    @media (max-width: 640px) {
+      .hero-title { font-size: 2.5rem; }
+    }
+
+    .hero-sub {
+      color: #94a3b8;
+      font-size: 1.2rem;
+      line-height: 1.8;
+      margin-bottom: 32px;
+    }
+
+    .hero-badges {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 32px;
+    }
+
+    @media (max-width: 900px) {
+      .hero-badges { justify-content: center; }
+    }
+
+    .hero-badge {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      color: #94a3b8;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .hero-cta {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 900px) {
+      .hero-cta { justify-content: center; }
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #4f46e5, #06b6d4);
+      color: #fff;
+      padding: 16px 36px;
+      border-radius: 14px;
+      font-weight: 700;
+      border: 0;
+      cursor: pointer;
+      font-size: 1rem;
+      box-shadow: 0 8px 28px rgba(79, 70, 229, 0.35);
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.3s;
+      animation: pulse-glow 3s ease-in-out infinite;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 12px 40px rgba(79, 70, 229, 0.5);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.06);
+      color: #cbd5e1;
+      padding: 16px 28px;
+      border-radius: 14px;
+      font-weight: 600;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all 0.3s;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-top: 40px;
+      padding-top: 40px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .hero-stat {
+      text-align: center;
+    }
+
+    .hero-stat-number {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #f1f5f9;
+    }
+
+    .hero-stat-label {
+      color: #64748b;
+      font-size: 0.85rem;
+      margin-top: 4px;
+    }
+
+    /* ===== HERO RIGHT (Hero Image/Animation) ===== */
+    .hero-visual {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .hero-card {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 24px;
+      padding: 40px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      width: 100%;
+      max-width: 400px;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    .hero-card-icon {
+      font-size: 4rem;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    .hero-card-title {
+      text-align: center;
+      font-weight: 700;
+      font-size: 1.2rem;
+      margin-bottom: 12px;
+    }
+
+    .hero-card-features {
+      list-style: none;
+      padding: 0;
+    }
+
+    .hero-card-features li {
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      color: #94a3b8;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.95rem;
+    }
+
+    .hero-card-features li:last-child {
+      border-bottom: 0;
+    }
+
+    /* ===== FEATURES SECTION ===== */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+    }
+
+    .feature-card {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 20px;
+      padding: 32px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      transition: all 0.3s;
+      animation: fadeInUp 0.6s ease both;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(79, 70, 229, 0.3);
+      background: rgba(255, 255, 255, 0.05);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .feature-card-icon {
+      font-size: 2.5rem;
+      margin-bottom: 16px;
+    }
+
+    .feature-card h3 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .feature-card p {
+      color: #94a3b8;
+      line-height: 1.7;
+      font-size: 0.95rem;
+    }
+
+    /* ===== HOW IT WORKS ===== */
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 32px;
+    }
+
+    .step-card {
+      text-align: center;
+      padding: 32px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      position: relative;
+      animation: fadeInUp 0.6s ease both;
+    }
+
+    .step-number {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, #4f46e5, #06b6d4);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.2rem;
+      margin: 0 auto 16px auto;
+    }
+
+    .step-card h3 {
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .step-card p {
+      color: #94a3b8;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    /* ===== FAQ SECTION ===== */
+    .faq-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .faq-grid { grid-template-columns: 1fr; }
+    }
+
+    .faq-item {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 16px;
+      padding: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      animation: fadeInUp 0.6s ease both;
+    }
+
+    .faq-item h4 {
+      font-weight: 700;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .faq-item p {
+      color: #94a3b8;
+      line-height: 1.7;
+      font-size: 0.95rem;
+      margin: 0;
+    }
+
+    /* ===== CTA SECTION ===== */
+    .cta-section {
+      text-align: center;
+      padding: 80px 40px;
+    }
+
+    .cta-box {
+      background: linear-gradient(135deg, rgba(79, 70, 229, 0.1), rgba(6, 182, 212, 0.1));
+      border-radius: 32px;
+      padding: 60px 40px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .cta-box h2 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+
+    .cta-box p {
+      color: #94a3b8;
+      font-size: 1.1rem;
+      max-width: 500px;
+      margin: 0 auto 32px auto;
+    }
+
+    /* ===== FOOTER ===== */
+    .footer {
+      padding: 40px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      text-align: center;
+      color: #475569;
+      font-size: 0.85rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      color: #64748b;
+      text-decoration: none;
+      transition: color 0.3s;
+      cursor: pointer;
+    }
+
+    .footer-links a:hover {
+      color: #94a3b8;
+    }
+
+    /* ===== LOGIN MODAL ===== */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-box {
+      background: #1e293b;
+      border-radius: 24px;
+      padding: 40px;
+      max-width: 440px;
+      width: 90%;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      box-shadow: 0 32px 64px rgba(0, 0, 0, 0.5);
+      animation: slideDown 0.4s ease;
+      position: relative;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 20px;
+      background: none;
+      border: none;
+      color: #64748b;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: color 0.3s;
+    }
+
+    .modal-close:hover {
+      color: #94a3b8;
+    }
+
+    .modal-icon {
+      text-align: center;
+      font-size: 3.5rem;
+      margin-bottom: 12px;
+    }
+
+    .modal-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      text-align: center;
+      color: #f1f5f9;
+      margin-bottom: 8px;
+    }
+
+    .modal-sub {
+      text-align: center;
+      color: #94a3b8;
+      font-size: 0.95rem;
+      margin-bottom: 24px;
+    }
+
+    .modal-input {
+      width: 100%;
+      padding: 14px 18px;
+      border: 2px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.05);
+      color: #f1f5f9;
+      font-size: 1rem;
+      transition: all 0.3s;
+      box-sizing: border-box;
+      margin-bottom: 12px;
+    }
+
+    .modal-input::placeholder {
+      color: #64748b;
+    }
+
+    .modal-input:focus {
+      outline: none;
+      border-color: #4f46e5;
+      background: rgba(255, 255, 255, 0.08);
+      box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+    }
+
+    .modal-input.error {
+      border-color: #ef4444;
+      animation: shake 0.4s ease;
+    }
+
+    .modal-password-toggle {
+      position: relative;
+    }
+
+    .password-toggle-btn {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: #64748b;
+      cursor: pointer;
+      font-size: 1.1rem;
+      padding: 4px;
+    }
+
+    .password-toggle-btn:hover {
+      color: #94a3b8;
+    }
+
+    .modal-btn {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #4f46e5, #06b6d4);
+      color: #fff;
+      border: 0;
+      border-radius: 14px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 4px;
+    }
+
+    .modal-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(79, 70, 229, 0.35);
+    }
+
+    .modal-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .modal-footer-text {
+      text-align: center;
+      margin-top: 16px;
+      color: #64748b;
+      font-size: 0.8rem;
+    }
+
+    .modal-error {
+      color: #ef4444;
+      font-size: 0.85rem;
+      margin: -4px 0 12px 0;
+      display: none;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .modal-error.show {
+      display: flex;
+    }
+
+    .modal-divider {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 16px 0;
+      color: #64748b;
+      font-size: 0.8rem;
+    }
+
+    .modal-divider::before,
+    .modal-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .modal-demo-hint {
+      background: rgba(79, 70, 229, 0.08);
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      border: 1px solid rgba(79, 70, 229, 0.1);
+      font-size: 0.85rem;
+      color: #94a3b8;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .modal-demo-hint strong {
+      color: #cbd5e1;
+    }
+
+    /* ===== TOAST ===== */
+    .custom-toast {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      padding: 16px 24px;
+      border-radius: 14px;
+      color: white;
+      font-weight: 500;
+      z-index: 9999;
+      max-width: 400px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+      animation: slideDown 0.4s ease;
+      border: 1px solid rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      background: #3b82f6;
+    }
+
+    .custom-toast.success { background: #10b981; }
+    .custom-toast.error { background: #ef4444; }
+
+    /* ===== SCROLL REVEAL ===== */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.8s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== BACKGROUND ORBS ===== -->
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <!-- ===== NAVIGATION ===== -->
+  <nav class="navbar">
+    <div class="nav-brand">
+      🔒 SecureCloud
+      <span>v2.0</span>
+    </div>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#how-it-works">How It Works</a>
+      <a href="#faq">FAQ</a>
+      <button class="nav-btn" onclick="openModal()">Get Started</button>
+    </div>
+  </nav>
+
+  <!-- ===== HERO SECTION ===== -->
+  <section id="hero">
+    <div class="hero-grid">
+      <!-- Left -->
+      <div>
+        <div style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;">
+          <span class="hero-badge">⭐ #1 Encrypted Storage</span>
+          <span class="hero-badge">🔒 Zero-Knowledge</span>
+          <span class="hero-badge">🚀 2026 Edition</span>
+        </div>
+        
+        <h1 class="hero-title">
+          Your Files,<br>
+          <span style="background: linear-gradient(135deg, #4f46e5, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Fully Encrypted</span>
+        </h1>
+        
+        <p class="hero-sub">
+          Store files with military-grade AES-256-GCM encryption. 
+          Encrypted in your browser before upload — <strong style="color: #f1f5f9;">only you</strong> hold the keys.
+        </p>
+
+        <div class="hero-cta">
+          <button class="btn-primary" onclick="openModal()">
+            🚀 Get Started Free
+          </button>
+          <button class="btn-secondary" onclick="document.getElementById('features').scrollIntoView({behavior:'smooth'})">
+            Learn More ↓
+          </button>
+        </div>
+
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <div class="hero-stat-number">100%</div>
+            <div class="hero-stat-label">Client-Side Encrypted</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-number">0</div>
+            <div class="hero-stat-label">Passwords Required</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-number">∞</div>
+            <div class="hero-stat-label">File Limit</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right - Hero Visual -->
+      <div class="hero-visual">
+        <div class="hero-card">
+          <div class="hero-card-icon">🔐</div>
+          <div class="hero-card-title">Secure Vault</div>
+          <ul class="hero-card-features">
+            <li>✅ AES-256-GCM Encryption</li>
+            <li>✅ Zero-Knowledge Architecture</li>
+            <li>✅ Client-Side Processing</li>
+            <li>✅ Drag & Drop Upload</li>
+            <li>✅ File Preview & Download</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FEATURES SECTION ===== -->
+  <section id="features">
+    <h2 class="section-title">Why Choose Secure Cloud Drive?</h2>
+    <p class="section-subtitle">
+      Built with privacy-first principles. Your data is encrypted before it ever leaves your device.
+    </p>
+
+    <div class="features-grid">
+      <div class="feature-card reveal">
+        <div class="feature-card-icon">🔐</div>
+        <h3>End-to-End Encryption</h3>
+        <p>Files are encrypted with AES-256-GCM in your browser using the Web Crypto API. Your encryption key is derived from your username — never sent to the server.</p>
+      </div>
+
+      <div class="feature-card reveal">
+        <div class="feature-card-icon">👤</div>
+        <h3>Zero-Knowledge</h3>
+        <p>We have zero access to your files. The server only stores encrypted data. Without your key, your files are unreadable — even by us.</p>
+      </div>
+
+      <div class="feature-card reveal">
+        <div class="feature-card-icon">⚡</div>
+        <h3>Instant Upload & Download</h3>
+        <p>Files are processed locally and uploaded quickly. Download and decrypt instantly in your browser. No waiting for server-side processing.</p>
+      </div>
+
+      <div class="feature-card reveal">
+        <div class="feature-card-icon">📁</div>
+        <h3>Unlimited Storage</h3>
+        <p>Store as many files as you want. Each user gets their own encrypted vault. Organize, preview, and manage your files with ease.</p>
+      </div>
+
+      <div class="feature-card reveal">
+        <div class="feature-card-icon">🖼️</div>
+        <h3>File Preview</h3>
+        <p>Preview images, text files, and documents directly in your browser. All previews happen locally — nothing is sent to the server.</p>
+      </div>
+
+      <div class="feature-card reveal">
+        <div class="feature-card-icon">📊</div>
+        <h3>Activity Logs</h3>
+        <p>Track every action: uploads, downloads, and deletions. Full transparency with local activity logging.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== HOW IT WORKS ===== -->
+  <section id="how-it-works">
+    <h2 class="section-title">How It Works</h2>
+    <p class="section-subtitle">
+      Three simple steps to secure file storage. No accounts, no passwords, no compromise.
+    </p>
+
+    <div class="steps-grid">
+      <div class="step-card reveal">
+        <div class="step-number">1</div>
+        <h3>Pick a Username</h3>
+        <p>Enter any username — your encryption key is derived from it. No sign-up, no password, no personal data collected.</p>
+      </div>
+
+      <div class="step-card reveal">
+        <div class="step-number">2</div>
+        <h3>Upload Files</h3>
+        <p>Drag and drop files or click to browse. Your files are encrypted with AES-256-GCM before they leave your browser.</p>
+      </div>
+
+      <div class="step-card reveal">
+        <div class="step-number">3</div>
+        <h3>Access Anywhere</h3>
+        <p>Log in with the same username to decrypt and access your files. Only you can read your data — always.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FAQ SECTION ===== -->
+  <section id="faq">
+    <h2 class="section-title">Frequently Asked Questions</h2>
+    <p class="section-subtitle">
+      Everything you need to know about Secure Cloud Drive.
+    </p>
+
+    <div class="faq-grid">
+      <div class="faq-item reveal">
+        <h4>🔐 How is my data encrypted?</h4>
+        <p>We use AES-256-GCM encryption with the Web Crypto API. Your encryption key is derived from your username using SHA-256, ensuring only you can decrypt your files.</p>
+      </div>
+
+      <div class="faq-item reveal">
+        <h4>👤 Do I need to create an account?</h4>
+        <p>No! Just pick a username and a password. No email, no personal information required.</p>
+      </div>
+
+      <div class="faq-item reveal">
+        <h4>🔑 What if I forget my password?</h4>
+        <p>Since we don't store your password, we can't reset it. Please save your credentials securely. This is by design for zero-knowledge security.</p>
+      </div>
+
+      <div class="faq-item reveal">
+        <h4>📁 Can I upload any file type?</h4>
+        <p>Yes! We support all file types — documents, images, videos, audio, code files, and more. Everything is encrypted before upload.</p>
+      </div>
+
+      <div class="faq-item reveal">
+        <h4>⚡ How fast are uploads?</h4>
+        <p>Uploads are processed locally in your browser and then sent to the server. Speed depends on your internet connection and file size.</p>
+      </div>
+
+      <div class="faq-item reveal">
+        <h4>🔒 Is this really zero-knowledge?</h4>
+        <p>Yes! Files are encrypted on your device before they reach our servers. We only store encrypted data and have no way to read your files.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CTA SECTION ===== -->
+  <section class="cta-section">
+    <div class="cta-box reveal">
+      <h2>Ready to Secure Your Files?</h2>
+      <p>Join thousands of users who trust Secure Cloud Drive for encrypted storage.</p>
+      <button class="btn-primary" onclick="openModal()" style="font-size: 1.1rem; padding: 18px 48px;">
+        🚀 Get Started Now — It's Free
+      </button>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="footer-links">
+      <a onclick="showAbout()">About</a>
+      <a onclick="alert('🔒 AES-256-GCM encryption with Web Crypto API')">Security</a>
+      <a onclick="alert('📧 support@secureclouddrive.com')">Contact</a>
+      <a onclick="alert('📄 Privacy Policy - We collect zero personal data.')">Privacy</a>
+      <a onclick="alert('📄 Terms of Service - Use at your own risk.')">Terms</a>
+    </div>
+    <div>
+      Built by Armaan • © 2026 Secure Cloud Drive
+    </div>
+  </footer>
+
+  <!-- ===== LOGIN MODAL ===== -->
+  <div id="loginModal" class="modal-overlay">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      
+      <div class="modal-icon">🔐</div>
+      <h2 class="modal-title">Welcome to Secure Cloud Drive</h2>
+      <p class="modal-sub">Enter your credentials to access your encrypted vault</p>
+      
+      <!-- <div class="modal-demo-hint">
+        💡 Demo: Use <strong>any username</strong> & <strong>password</strong> (min 4 chars)
+      </div> -->
+      
+      <div id="modalError" class="modal-error">
+        ⚠️ <span id="errorMessage">Invalid credentials</span>
+      </div>
+      
+      <form id="loginForm" onsubmit="handleLogin(event)">
+        <input 
+          type="text" 
+          id="usernameInput" 
+          class="modal-input" 
+          placeholder="👤 Username" 
+          required
+          autofocus
+        />
+        
+        <div class="modal-password-toggle">
+          <input 
+            type="password" 
+            id="passwordInput" 
+            class="modal-input" 
+            placeholder="🔑 Password (min 4 characters)" 
+            required
+            minlength="4"
+          />
+          <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility()">
+            👁️
+          </button>
+        </div>
+        
+        <button type="submit" class="modal-btn" id="loginBtn">
+          🚀 Continue to Dashboard
+        </button>
+      </form>
+      
+      <div class="modal-divider">or</div>
+      
+      <button class="modal-btn" onclick="quickLogin()" style="background: rgba(255,255,255,0.06); color: #cbd5e1; box-shadow: none;">
+        ⚡ Quick Demo Login
+      </button>
+      
+      <p class="modal-footer-text">
+        🔒 Your password is never stored • Used only for authentication
+      </p>
+    </div>
+  </div>
+
+  <script>
+    // ============================================
+    // TOGGLE PASSWORD VISIBILITY
+    // ============================================
+    
+    let passwordVisible = false;
+    
+    function togglePasswordVisibility() {
+      const input = document.getElementById('passwordInput');
+      const btn = document.querySelector('.password-toggle-btn');
+      passwordVisible = !passwordVisible;
+      input.type = passwordVisible ? 'text' : 'password';
+      btn.textContent = passwordVisible ? '🙈' : '👁️';
+    }
+
+    // ============================================
+    // HANDLE LOGIN
+    // ============================================
+    
+    async function handleLogin(event) {
+      event.preventDefault();
+      
+      const username = document.getElementById('usernameInput').value.trim();
+      const password = document.getElementById('passwordInput').value.trim();
+      const errorEl = document.getElementById('modalError');
+      const errorMsg = document.getElementById('errorMessage');
+      const loginBtn = document.getElementById('loginBtn');
+      
+      // Reset error
+      errorEl.classList.remove('show');
+      document.getElementById('usernameInput').classList.remove('error');
+      document.getElementById('passwordInput').classList.remove('error');
+      
+      if (!username) {
+        showError('Please enter a username');
+        document.getElementById('usernameInput').classList.add('error');
+        return;
+      }
+      
+      if (!password || password.length < 4) {
+        showError('Password must be at least 4 characters');
+        document.getElementById('passwordInput').classList.add('error');
+        return;
+      }
+
+      // Disable button during login
+      loginBtn.disabled = true;
+      loginBtn.textContent = '⏳ Logging in...';
+
+      try {
+        const response = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || 'Login failed');
+        }
+
+        const data = await response.json();
+        
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        
+        closeModal();
+        
+        showToast(`👋 Welcome ${username}! Redirecting...`, 'success');
+        setTimeout(() => {
+          window.location.href = '/dashboard.html';
+        }, 600);
+        
+      } catch (err) {
+        showError(err.message || 'Invalid username or password');
+        document.getElementById('passwordInput').classList.add('error');
+        document.getElementById('passwordInput').value = '';
+        document.getElementById('passwordInput').focus();
+        loginBtn.disabled = false;
+        loginBtn.textContent = '🚀 Continue to Dashboard';
+      }
+    }
+
+    function showError(message) {
+      const errorEl = document.getElementById('modalError');
+      const errorMsg = document.getElementById('errorMessage');
+      errorMsg.textContent = message;
+      errorEl.classList.add('show');
+    }
+
+    // ============================================
+    // QUICK DEMO LOGIN
+    // ============================================
+    
+    async function quickLogin() {
+      const username = 'demo_' + Math.random().toString(36).substring(2, 8);
+      const password = 'demo123';
+      
+      document.getElementById('usernameInput').value = username;
+      document.getElementById('passwordInput').value = password;
+      
+      // Auto submit
+      await handleLogin(new Event('submit'));
+    }
+
+    // ============================================
+    // MODAL CONTROLS
+    // ============================================
+    
+    function openModal() {
+      const modal = document.getElementById('loginModal');
+      modal.classList.add('active');
+      document.getElementById('usernameInput').focus();
+      // Reset error state
+      document.getElementById('modalError').classList.remove('show');
+      document.getElementById('usernameInput').classList.remove('error');
+      document.getElementById('passwordInput').classList.remove('error');
+    }
+
+    function closeModal() {
+      document.getElementById('loginModal').classList.remove('active');
+    }
+
+    // ============================================
+    // ABOUT
+    // ============================================
+    
+    function showAbout() {
+      alert(
+        '🔒 Secure Cloud Drive\n' +
+        '━━━━━━━━━━━━━━━━━━━━━━\n\n' +
+        '📌 Version 2.0 — Enhanced Edition\n\n' +
+        '✨ Features:\n' +
+        '• AES-256-GCM client-side encryption\n' +
+        '• Zero-knowledge architecture\n' +
+        '• Drag & drop file upload\n' +
+        '• File preview & download\n' +
+        '• Activity logging\n' +
+        '• Username + Password authentication\n\n' +
+        '🔐 Security:\n' +
+        '• Encrypted in your browser\n' +
+        '• Decryption key derived from username\n' +
+        '• Files stored encrypted at rest\n' +
+        '• Passwords never stored\n\n' +
+        '💡 Built with:\n' +
+        '• Node.js + Express\n' +
+        '• Web Crypto API\n' +
+        '• Tailwind CSS\n\n' +
+        '📧 Built by Armaan for demo purposes'
+      );
+    }
+
+    // ============================================
+    // TOAST NOTIFICATION
+    // ============================================
+    
+    function showToast(message, type = 'info') {
+      const oldToast = document.querySelector('.custom-toast');
+      if (oldToast) oldToast.remove();
+      
+      const toast = document.createElement('div');
+      toast.className = `custom-toast ${type}`;
+      toast.textContent = message;
+      
+      document.body.appendChild(toast);
+      
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(20px)';
+        setTimeout(() => toast.remove(), 400);
+      }, 3500);
+    }
+
+    // ============================================
+    // SCROLL REVEAL
+    // ============================================
+    
+    function handleScrollReveal() {
+      const reveals = document.querySelectorAll('.reveal');
+      reveals.forEach(el => {
+        const rect = el.getBoundingClientRect();
+        const windowHeight = window.innerHeight;
+        if (rect.top < windowHeight - 100) {
+          el.classList.add('visible');
+        }
+      });
+    }
+
+    document.addEventListener('scroll', handleScrollReveal);
+    document.addEventListener('DOMContentLoaded', handleScrollReveal);
+
+    // ============================================
+    // KEYBOARD SHORTCUTS
+    // ============================================
+    
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeModal();
+      }
+    });
+
+    // Click outside modal to close
+    document.getElementById('loginModal').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) {
+        closeModal();
+      }
+    });
+
+    // ============================================
+    // CONSOLE BANNER
+    // ============================================
+    
+    console.log('%c🔒 Secure Cloud Drive v2.0', 'font-size: 24px; font-weight: bold; color: #818cf8;');
+    console.log('%c⚡ Built by Armaan', 'font-size: 14px; color: #94a3b8;');
+    console.log('%c📁 Click "Get Started" to login!', 'font-size: 14px; color: #34d399;');
+    console.log('%c🔑 Any username + password (min 4 chars) works for demo', 'font-size: 12px; color: #fbbf24;');
+  </script>
+</body>
+</html>
